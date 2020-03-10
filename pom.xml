@@ -11,4 +11,17 @@
         <maven.compiler.target>11</maven.compiler.target>
     </properties>
     <name>LexO-lite Importer</name>
+    <dependencies>
+        <dependency>
+            <groupId>net.sourceforge.owlapi</groupId>
+            <artifactId>owlapi-distribution</artifactId>
+            <version>5.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.opencsv</groupId>
+            <artifactId>opencsv</artifactId>
+            <version>4.0</version>
+        </dependency>
+
+    </dependencies>
 </project>

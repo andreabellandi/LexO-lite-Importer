@@ -14,8 +14,8 @@ public class ImporterFactory {
     public static Importer getImporter(LexiconModel model) {
         Importer importer = null;
         switch (model) {
-            case CSV:
-                importer = new CSVImporter();
+            case CoNLL:
+                importer = new CoNLLImporter();
                 break;
         }
         return importer;

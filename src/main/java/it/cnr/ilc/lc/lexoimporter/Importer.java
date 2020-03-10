@@ -5,12 +5,16 @@
  */
 package it.cnr.ilc.lc.lexoimporter;
 
+import java.io.FileInputStream;
+import java.io.InputStream;
+import org.semanticweb.owlapi.model.OWLOntologyManager;
+
 /**
  *
  * @author andrea
  */
 public interface Importer {
 
-    String getConversion();
+    OWLOntologyManager getConversion(InputStream CoNLL, String iri);
 
 }
