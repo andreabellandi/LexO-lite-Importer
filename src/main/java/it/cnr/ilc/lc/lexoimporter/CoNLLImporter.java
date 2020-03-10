@@ -9,13 +9,21 @@ import com.opencsv.bean.CsvBindByName;
 import com.opencsv.bean.CsvBindByPosition;
 import com.opencsv.bean.CsvToBean;
 import com.opencsv.bean.CsvToBeanBuilder;
+import it.cnr.ilc.lc.lexoimporter.lexiconUtil.Constant;
+import it.cnr.ilc.lc.lexoimporter.lexiconUtil.LexiconUtils;
+import it.cnr.ilc.lc.lexoimporter.lexiconUtil.Namespace;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.semanticweb.owlapi.apibinding.OWLManager;
+import org.semanticweb.owlapi.model.IRI;
+import org.semanticweb.owlapi.model.OWLOntology;
+import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
 
 /**
@@ -24,51 +32,74 @@ import org.semanticweb.owlapi.model.OWLOntologyManager;
  */
 public class CoNLLImporter implements Importer {
     
-    private OWLOntologyManager manager = OWLManager.createOWLOntologyManager();
-    
     @Override
-    public OWLOntologyManager getConversion(InputStream CoNLL, String iri) {
-        Reader reader = new InputStreamReader(CoNLL);
-        CsvToBean<CoNLLRow> conllToBean = new CsvToBeanBuilder(reader)
+    public OWLOntologyManager getConversion(InputStream CoNLL, String lang) {
+        try {
+            OWLOntologyManager manager = OWLManager.createOWLOntologyManager();
+            OWLOntology ontology = manager.createOntology(IRI.create(Namespace.LEXICON.replace("#", "")));
+            Reader reader = new InputStreamReader(CoNLL);
+            CsvToBean<CoNLLRow> conllToBean = new CsvToBeanBuilder(reader)
                     .withSeparator('\t')
                     .withType(CoNLLRow.class)
                     .withIgnoreLeadingWhiteSpace(true)
                     .build();
-        Iterator<CoNLLRow> conllIterator = conllToBean.iterator();
-        ArrayList<CoNLLRow> entries = new ArrayList<>();
-        while (conllIterator.hasNext()) {
-            CoNLLRow conll = conllIterator.next();
-            entries.add(conll);
+            Iterator<CoNLLRow> conllIterator = conllToBean.iterator();
+            ArrayList<CoNLLRow> entries = new ArrayList<>();
+            while (conllIterator.hasNext()) {
+                CoNLLRow conll = conllIterator.next();
+                entries.add(conll);
+            }
+            Collections.reverse(entries);
+            getLexicon(manager, entries, lang);
+            return manager;
+        } catch (OWLOntologyCreationException ex) {
+            Logger.getLogger(CoNLLImporter.class.getName()).log(Level.SEVERE, null, ex);
         }
-        Collections.reverse(entries);
-        getLexicon(entries);    
         return null;
     }
 
-    private void getLexicon(ArrayList<CoNLLRow> entries) {
+    private void getLexicon(OWLOntologyManager manager, ArrayList<CoNLLRow> entries, String lang) {
         ArrayList<CoNLLRow> e = new ArrayList<>();
         for (CoNLLRow entry : entries) {
             e.add(entry);
             if (entry.getType().equals("B")) {
-                addEntry(e);
+                addEntry(manager, e, lang);
                 e.clear();
             }
         }
     }
     
-    private void addEntry(ArrayList<CoNLLRow> entry) {
+    private void addEntry(OWLOntologyManager manager, ArrayList<CoNLLRow> entry, String lang) {
         if (entry.size() > 1) {
             // create multiword entry
+            CoNLLRow e = new CoNLLRow();
             for (CoNLLRow comp : entry) {
-                // create comp (comp)
+               e.setForm(e.getForm() + comp.getForm() + " ");
+               e.setLemma(e.getLemma() + comp.getLemma() + " ");
+               e.setFinGrainPoS(comp.getFinGrainPoS());
+               e.setCoarseGrainPoS(comp.getCoarseGrainPoS());
+               e.setFirstTraitGroup(comp.getFirstTraitGroup());
+               e.setSecondTraitGroup(comp.getSecondTraitGroup());
+               e.setThirdTraitGroup(comp.getThirdTraitGroup());
             }
-            // crete entry
+            LexiconUtils.createMultiWord(lang, reverse(e.getForm()), reverse(e.getLemma()), e.getFinGrainPoS(), e.getCoarseGrainPoS(), 
+                    e.getFirstTraitGroup(), e.getSecondTraitGroup(), e.getThirdTraitGroup(), manager);
         } else {
             // crete entry
-            
+            CoNLLRow e = entry.get(0);
+            LexiconUtils.createWord(lang, e.getForm(), e.getLemma(), e.getFinGrainPoS(), e.getCoarseGrainPoS(), 
+                    e.getFirstTraitGroup(), e.getSecondTraitGroup(), e.getThirdTraitGroup(), manager);
         }
     }
     
+    private String reverse(String s) {
+        String ret = "";
+        String[] a = s.split(" ");
+        for (int counter = a.length - 1; counter >= 0; counter--) {
+            ret = ret + a[counter] + " ";
+        }
+        return ret.trim();
+    }
     
     
     public static class CoNLLRow {

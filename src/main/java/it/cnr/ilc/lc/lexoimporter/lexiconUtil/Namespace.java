@@ -13,9 +13,7 @@ package it.cnr.ilc.lc.lexoimporter.lexiconUtil;
  */
 public class Namespace {
 
-    //public static final String LEXICON = LexOliteProperties.getProperty("lexiconNamespace");
-    //public static final String DOMAIN_ONTOLOGY = LexOliteProperties.getProperty("domainOntologyNamespace");
-
+    public static final String LEXICON = "http://lexica/mylexicon#";
     public static final String ONTOLEX = "http://www.w3.org/ns/lemon/ontolex#";
     public static final String LEMON = "http://lemon-model.net/lemon#";
     public static final String LIME = "http://www.w3.org/ns/lemon/lime#";

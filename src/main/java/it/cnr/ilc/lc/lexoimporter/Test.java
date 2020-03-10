@@ -26,7 +26,7 @@ public class Test {
         InputStream inputStream = null;
         try {
             inputStream = new FileInputStream("/home/andrea/Documents/RABBINI/conll4lexo.txt");
-            OWLOntologyManager manager = ImporterFactory.getImporter(LexiconModel.CoNLL).getConversion(inputStream, "");
+            OWLOntologyManager manager = ImporterFactory.getImporter(LexiconModel.CoNLL).getConversion(inputStream, "it");
         } catch (FileNotFoundException ex) {
             Logger.getLogger(Test.class.getName()).log(Level.SEVERE, null, ex);
         } finally {

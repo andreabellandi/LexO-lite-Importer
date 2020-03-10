@@ -15,6 +15,6 @@ import org.semanticweb.owlapi.model.OWLOntologyManager;
  */
 public interface Importer {
 
-    OWLOntologyManager getConversion(InputStream CoNLL, String iri);
+    OWLOntologyManager getConversion(InputStream CoNLL, String lang);
 
 }
