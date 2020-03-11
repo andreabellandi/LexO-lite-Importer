@@ -59,6 +59,7 @@ public class CoNLLImporter implements Importer {
     }
 
     private void getLexicon(OWLOntologyManager manager, ArrayList<CoNLLRow> entries, String lang) {
+        LexiconUtils.createLexicon(lang, manager);
         ArrayList<CoNLLRow> e = new ArrayList<>();
         for (CoNLLRow entry : entries) {
             e.add(entry);
@@ -73,7 +74,11 @@ public class CoNLLImporter implements Importer {
         if (entry.size() > 1) {
             // create multiword entry
             CoNLLRow e = new CoNLLRow();
+            e.setForm("");
+            e.setLemma("");
             for (CoNLLRow comp : entry) {
+               LexiconUtils.createWord(lang, comp.getForm(), comp.getLemma(), comp.getFinGrainPoS(), comp.getCoarseGrainPoS(), 
+                    comp.getFirstTraitGroup(), comp.getSecondTraitGroup(), comp.getThirdTraitGroup(), manager);
                e.setForm(e.getForm() + comp.getForm() + " ");
                e.setLemma(e.getLemma() + comp.getLemma() + " ");
                e.setFinGrainPoS(comp.getFinGrainPoS());

@@ -25,7 +25,15 @@ public class LexiconUtils {
  
     
     
-    public static void createLexicon(String lang) {
+    public static void createLexicon(String lang, OWLOntologyManager manager) {
+        OWLNamedIndividual lexicon = getIndividual(Constant.LEXICON_INDIVIDUAL_NAME, Namespace.LEXICON, manager);
+        OWLClass lexiconClass = manager.getOWLDataFactory().getOWLClass(Namespace.LIME, "Lexicon");
+        addIndividualAxiom(lexiconClass, lexicon, manager);
+        addDataPropertyAxiom("language", lexicon, lang, Namespace.LIME, manager);
+        addDataPropertyAxiom("language", lexicon, lang, Namespace.DCT, manager);
+        addDataPropertyAxiom("linguisticCatalog", lexicon, Constant.LINGUISTIC_CATALOG, Namespace.LIME, manager);
+        addDataPropertyAxiom("description", lexicon, Constant.RESOURCE_DESCRIPTION, Namespace.DCT, manager);
+        addDataPropertyAxiom("creator", lexicon, Constant.RESOURCE_CREATOR, Namespace.DCT, manager);
     }
     
     public static void createWord(String lang, String form, String lemma, String finGrainPoS, String coarseGrainPoS,
@@ -40,12 +48,12 @@ public class LexiconUtils {
     public static void createLemma(String type, String lang, String form, String lemma, String finGrainPoS, String coarseGrainPoS,
             String firstTraitGroup, String secondTraitGroup, String thirdTraitGroup, OWLOntologyManager manager) {
             
-            String lemmaInstance = getIRI(lemma, lang, "lemma");
-            String senseInstance = getIRI(lemma, lang, "sense1");
-            String entryInstance = getIRI(lemma, lang, "entry");
+            String lemmaInstance = getIRI(type.equals(Constant.MULTIWORD_TYPE) ? lemma.replaceAll(" ", "_") : lemma, lang, "lemma");
+            String senseInstance = getIRI(type.equals(Constant.MULTIWORD_TYPE) ? lemma.replaceAll(" ", "_") : lemma, lang, "sense1");
+            String entryInstance = getIRI(type.equals(Constant.MULTIWORD_TYPE) ? lemma.replaceAll(" ", "_") : lemma, lang, "entry");
         
             OWLNamedIndividual lexicon = getIndividual(Constant.LEXICON_INDIVIDUAL_NAME, Namespace.LEXICON, manager);
-            OWLNamedIndividual le = getEntry(entryInstance, OntoLexEntity.Class.WORD.getLabel(), manager);
+            OWLNamedIndividual le = getEntry(entryInstance, type, manager);
             OWLNamedIndividual cf = getForm(lemmaInstance, manager);
             OWLNamedIndividual s = getSense(senseInstance, manager);
         
@@ -60,43 +68,63 @@ public class LexiconUtils {
     public static void createForm(String type, String lang, String form, String lemma, String finGrainPoS, String coarseGrainPoS,
             String firstTraitGroup, String secondTraitGroup, String thirdTraitGroup, OWLOntologyManager manager) {
                
-            String formInstance = getIRI(lemma, lang, form, "form");
-            String entryInstance = getIRI(lemma, lang, "entry");
-            OWLNamedIndividual le = getIndividual(entryInstance, OntoLexEntity.Class.WORD.getLabel(), manager);
+            String formInstance = getIRI(type.equals(Constant.MULTIWORD_TYPE) ? lemma.replaceAll(" ", "_") : lemma, 
+                    lang, type.equals(Constant.MULTIWORD_TYPE) ? form.replaceAll(" ", "_") : form, "form");
+            String entryInstance = getIRI(type.equals(Constant.MULTIWORD_TYPE) ? lemma.replaceAll(" ", "_") : lemma, lang, "entry");
+            OWLNamedIndividual le = getIndividual(entryInstance, Namespace.LEXICON, manager);
             OWLNamedIndividual of = getForm(formInstance, manager);
 
             addObjectPropertyAxiom(OntoLexEntity.ObjectProperty.OTHERFORM.getLabel(), le, of, Namespace.ONTOLEX, manager);
+            addDataPropertyAxiom(OntoLexEntity.DataProperty.WRITTENREP.getLabel(), of, form, Namespace.ONTOLEX, manager);
 
             setMoprhology(type, le, of, finGrainPoS, coarseGrainPoS, firstTraitGroup, secondTraitGroup, thirdTraitGroup, manager);
     }
     
     private static void setMoprhology(String type, OWLNamedIndividual le, OWLNamedIndividual cf, String finGrainPoS, String coarseGrainPoS,
             String firstTraitGroup, String secondTraitGroup, String thirdTraitGroup, OWLOntologyManager manager) {
-            
-            addObjectPropertyAxiom("partOfSpeech", cf, 
+
+        addObjectPropertyAxiom("partOfSpeech", cf, 
                     (Constant.WORD_TYPE.equals(type) ? getIndividual(CoNLLMapToLexInfo.posMapping.get(finGrainPoS), Namespace.LEXINFO, manager) : 
                             getIndividual(CoNLLMapToLexInfo.phraseTypeMapping.get(finGrainPoS), Namespace.LEXINFO, manager)),
                     Namespace.LEXINFO, manager);
+        if (firstTraitGroup.contains("Gender")) {
             addObjectPropertyAxiom("gender", cf, 
-                            getIndividual(CoNLLMapToLexInfo.morphoTraitMapping.get(firstTraitGroup.split("\\|")[0].split("=")[1]), Namespace.LEXINFO, manager),
-                    Namespace.LEXINFO, manager);
+                            getIndividual(CoNLLMapToLexInfo.morphoTraitMapping.get(firstTraitGroup.split("\\|")[0].split("=")[1]), 
+                                    Namespace.LEXINFO, manager), Namespace.LEXINFO, manager);
+        }
+        if (firstTraitGroup.contains("Number")) {
             addObjectPropertyAxiom("number", cf, 
-                            getIndividual(CoNLLMapToLexInfo.morphoTraitMapping.get(firstTraitGroup.split("\\|")[1].split("=")[1]), Namespace.LEXINFO, manager),
-                    Namespace.LEXINFO, manager);
-            
-            addDataPropertyAxiom("valid", le, "false", Namespace.DCT, manager);
+                            getIndividual(CoNLLMapToLexInfo.morphoTraitMapping.get(firstTraitGroup.split("\\|")[firstTraitGroup.contains("Gender") ? 1 : 0].split("=")[1]), 
+                                    Namespace.LEXINFO, manager), Namespace.LEXINFO, manager);
+        }
+        addDataPropertyAxiom("valid", le, "false", Namespace.DCT, manager);
     }
     
     public static void createMultiWord(String lang, String form, String lemma, String finGrainPoS, String coarseGrainPoS,
             String firstTraitGroup, String secondTraitGroup, String thirdTraitGroup, OWLOntologyManager manager) {
         
+        // euristic: only the form, contained in the form column, is created as lemma.
         createLemma(Constant.MULTIWORD_TYPE, lang, form, lemma, finGrainPoS, coarseGrainPoS, firstTraitGroup, secondTraitGroup, thirdTraitGroup, manager);
-        if (!form.equals(lemma)) {
-            createForm(Constant.MULTIWORD_TYPE, lang, form, lemma, finGrainPoS, coarseGrainPoS, firstTraitGroup, secondTraitGroup, thirdTraitGroup, manager);
-        }
-        // TODO: decomposition
+        createDecomposition(lang, lemma, manager);
     }   
 
+    private static void createDecomposition(String lang, String lemma, OWLOntologyManager manager) {
+        
+        String[] mwComponents = lemma.split(" ");
+        String entryInstance = getIRI(lemma.replaceAll(" ", "_"), lang, "entry");
+        OWLNamedIndividual le = getIndividual(entryInstance, Namespace.LEXICON, manager);
+        
+        for (int i = 0; i < mwComponents.length; i++) {
+            String position = Integer.toString(i);
+            OWLNamedIndividual componentIndividual = getComponent(getIRI(entryInstance, "comp", position), manager);
+            addObjectPropertyAxiom(OntoLexEntity.ObjectProperty.CONSTITUENT.getLabel(), le, componentIndividual, Namespace.DECOMP, manager);
+            addDataPropertyAxiom("comment", componentIndividual, position, Namespace.RDFS, manager);
+
+            OWLNamedIndividual leComp = getIndividual(getIRI(mwComponents[i], lang, "entry"), Namespace.LEXICON, manager);
+            addObjectPropertyAxiom(OntoLexEntity.ObjectProperty.CORRESPONDSTO.getLabel(), componentIndividual, leComp, Namespace.DECOMP, manager);
+        }
+    }
+    
     public static String getIRI(String... params) {
         StringBuilder iri = new StringBuilder();
         for (int i = 0; i < params.length; i++) {
@@ -129,17 +157,17 @@ public class LexiconUtils {
         return sense;
     }
 
-    private static OWLNamedIndividual getSense(String senseName, int n, OWLOntologyManager manager) {
-        OWLClass lexicalSenseClass = manager.getOWLDataFactory().getOWLClass(Namespace.ONTOLEX, "LexicalSense");
-        OWLNamedIndividual sense = manager.getOWLDataFactory().getOWLNamedIndividual(Namespace.LEXICON, senseName + n);
-        addIndividualAxiom(lexicalSenseClass, sense, manager);
-        return sense;
-    }
-
     private static OWLNamedIndividual getIndividual(String uri, String ns, OWLOntologyManager manager) {
         return manager.getOWLDataFactory().getOWLNamedIndividual(ns, uri);
     }
    
+    private static OWLNamedIndividual getComponent(String uri, OWLOntologyManager manager) {
+        OWLClass ComponentClass = manager.getOWLDataFactory().getOWLClass(Namespace.DECOMP, OntoLexEntity.Class.COMPONENT.getLabel());
+        OWLNamedIndividual c = manager.getOWLDataFactory().getOWLNamedIndividual(Namespace.LEXICON, uri);
+        addIndividualAxiom(ComponentClass, c, manager);
+        return c;
+    }
+    
     private static void addIndividualAxiom(OWLClass c, OWLNamedIndividual i, OWLOntologyManager manager) {
         OWLClassAssertionAxiom classAssertion = manager.getOWLDataFactory().getOWLClassAssertionAxiom(c, i);
         manager.addAxiom(manager.getOntology(IRI.create(Namespace.LEXICON.replace("#", ""))), classAssertion);

@@ -18,12 +18,13 @@ public class CoNLLMapToLexInfo {
     static {
         posMapping.put("NOUN", "noun");
         posMapping.put("ADJ", "adjective");
+        posMapping.put("ADP", "preposition");
     }
     
     public final static Map<String, String> phraseTypeMapping = new HashMap<String, String>();
     static {
-        phraseTypeMapping.put("NOUN", "nounPhrase");
-        phraseTypeMapping.put("ADJ", "adjectivePhrase");
+        phraseTypeMapping.put("NOUN", "noun");
+        phraseTypeMapping.put("ADJ", "adjective");
     }
     
     public final static Map<String, String> morphoTraitMapping = new HashMap<String, String>();

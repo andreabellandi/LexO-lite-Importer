@@ -21,6 +21,9 @@ public class OntoLexEntity {
         LEXICALENTRY("LexicalEntry"),
         LEXICALSENSE("LexicalSense"),
         LEXICALCONCEPT("LexicalConcept"),
+
+        // decomp
+        COMPONENT("Component"),
         
         // vartrans module
         LEXICALRELATION("LexicalRelation"),
@@ -72,6 +75,10 @@ public class OntoLexEntity {
         SENSE("sense"),
         ENTRY("entry"),
         REFERENCE("reference"),
+        
+        // decomp
+        CONSTITUENT("constituent"),
+        CORRESPONDSTO("correspondsTo"),
         
         // vartrans module
         LEXICALREL("lexicalRel"),
