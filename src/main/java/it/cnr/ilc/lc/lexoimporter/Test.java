@@ -5,6 +5,7 @@
  */
 package it.cnr.ilc.lc.lexoimporter;
 
+import it.cnr.ilc.lc.lexoimporter.lexiconUtil.Constant;
 import it.cnr.ilc.lc.lexoimporter.lexiconUtil.Namespace;
 import java.io.File;
 import java.io.FileInputStream;
@@ -30,7 +31,7 @@ public class Test {
     public static void main(String[] args) throws IOException, OWLOntologyStorageException {
         InputStream inputStream = null;
         try {
-            inputStream = new FileInputStream("/home/andrea/Documents/RABBINI/conll4lexo.txt");
+            inputStream = new FileInputStream(Constant.SOURCE_FILE_PATH);
             OWLOntologyManager manager = ImporterFactory.getImporter(LexiconModel.CoNLL).getConversion(inputStream, "it");
             persist(manager);
         } catch (FileNotFoundException ex) {
@@ -45,8 +46,8 @@ public class Test {
     }
     
     private static void persist(OWLOntologyManager manager) throws IOException, OWLOntologyStorageException {
-        File f = new File("/home/andrea/Documents/RABBINI/mylexicon.owl");
-        try ( FileOutputStream fos = new FileOutputStream("/home/andrea/Documents/RABBINI/mylexicon.owl")) {
+        File f = new File(Constant.TARGET_FILE_PATH);
+        try ( FileOutputStream fos = new FileOutputStream(Constant.TARGET_FILE_PATH)) {
             manager.saveOntology(manager.getOntology(IRI.create(Namespace.LEXICON.replace("#", ""))), fos);
         }
     }
