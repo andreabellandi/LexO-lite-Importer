@@ -20,8 +20,8 @@ public class Constant {
     public static final List<String> stopPoS = Arrays.asList("ADP");
     public static final String RESOURCE_CREATOR = "Impoterd by LexO-lite importer";
     public static final String RESOURCE_DESCRIPTION = "https://github.com/andreabellandi/LexO-lite-Importer";
-    public static final String LINGUISTIC_CATALOG = "http://www.lexinfo.net/ontologies/2.0/lexinfo";
-    public static final String SOURCE_FILE_PATH = "/Users/andrea/Documents/Talmud_CoNLL/terms.txt";
-    public static final String TARGET_FILE_PATH = "/Users/andrea/.LexO-lite/mylexicon.owl";
+    public static final String LINGUISTIC_CATALOG = "http://www.lexinfo.net/ontologies/3.0/lexinfo";
+    public static final String SOURCE_FILE_PATH = "/home/andrea/Documents/RABBINI/conll4lexo.txt";
+    public static final String TARGET_FILE_PATH = "/home/andrea/.LexO-lite/mylexicon.owl";
 
 }
