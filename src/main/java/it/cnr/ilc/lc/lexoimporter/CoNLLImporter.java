@@ -5,11 +5,9 @@
  */
 package it.cnr.ilc.lc.lexoimporter;
 
-import com.opencsv.bean.CsvBindByName;
 import com.opencsv.bean.CsvBindByPosition;
 import com.opencsv.bean.CsvToBean;
 import com.opencsv.bean.CsvToBeanBuilder;
-import it.cnr.ilc.lc.lexoimporter.lexiconUtil.Constant;
 import it.cnr.ilc.lc.lexoimporter.lexiconUtil.LexiconUtils;
 import it.cnr.ilc.lc.lexoimporter.lexiconUtil.Namespace;
 import java.io.InputStream;
@@ -17,7 +15,9 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Stack;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.semanticweb.owlapi.apibinding.OWLManager;
@@ -31,7 +31,7 @@ import org.semanticweb.owlapi.model.OWLOntologyManager;
  * @author andrea
  */
 public class CoNLLImporter implements Importer {
-    
+
     @Override
     public OWLOntologyManager getConversion(InputStream CoNLL, String lang) {
         try {
@@ -69,34 +69,59 @@ public class CoNLLImporter implements Importer {
             }
         }
     }
-    
+
     private void addEntry(OWLOntologyManager manager, ArrayList<CoNLLRow> entry, String lang) {
         if (entry.size() > 1) {
             // create multiword entry
             CoNLLRow e = new CoNLLRow();
-            e.setForm("");
-            e.setLemma("");
+            Stack<String> formS = new Stack<>();
+            Stack<String> lemmaS = new Stack<>();
+           // e.setForm("");
+           // e.setLemma("");
             for (CoNLLRow comp : entry) {
-               LexiconUtils.createWord(lang, comp.getForm(), comp.getLemma(), comp.getFinGrainPoS(), comp.getCoarseGrainPoS(), 
-                    comp.getFirstTraitGroup(), comp.getSecondTraitGroup(), comp.getThirdTraitGroup(), manager);
-               e.setForm(e.getForm() + comp.getForm() + " ");
-               e.setLemma(e.getLemma() + comp.getLemma() + " ");
-               e.setFinGrainPoS(comp.getFinGrainPoS());
-               e.setCoarseGrainPoS(comp.getCoarseGrainPoS());
-               e.setFirstTraitGroup(comp.getFirstTraitGroup());
-               e.setSecondTraitGroup(comp.getSecondTraitGroup());
-               e.setThirdTraitGroup(comp.getThirdTraitGroup());
+                System.err.println("comp: " + comp.toString());
+                    for (String el : comp.getFirstTraitGroup().split("\\|")) {
+
+                    }
+                LexiconUtils.createWord(lang, comp.getForm(), comp.getLemma(), comp.getFinGrainPoS(), comp.getCoarseGrainPoS(),
+                        comp.getFirstTraitGroup(), comp.getSecondTraitGroup(), comp.getThirdTraitGroup(), manager);
+                //e.setForm(e.getForm() + comp.getForm() + " ");
+                //e.setLemma(e.getLemma() + comp.getLemma() + " ");
+                formS.push(comp.getForm());
+                lemmaS.push(comp.getLemma());
+                if (e.getType().equals("B")) {
+                    e.setFinGrainPoS(comp.getFinGrainPoS());
+                    e.setCoarseGrainPoS(comp.getCoarseGrainPoS());
+                    e.setFirstTraitGroup(comp.getFirstTraitGroup());
+                    e.setSecondTraitGroup(comp.getSecondTraitGroup());
+                    e.setThirdTraitGroup(comp.getThirdTraitGroup());
+                }
             }
-            LexiconUtils.createMultiWord(lang, reverse(e.getForm()), reverse(e.getLemma()), e.getFinGrainPoS(), e.getCoarseGrainPoS(), 
+
+            StringBuilder forma = new StringBuilder();
+            while (!formS.empty()) {
+                forma.append(formS.pop()).append((formS.size()>0)?" ":"");
+            }
+
+            StringBuilder lemma = new StringBuilder();
+            while (!lemmaS.empty()) {
+                lemma.append(lemmaS.pop()).append((lemmaS.size()>0)?" ":"");
+            }
+            
+            System.err.println("<" + forma.toString() + "> <" + lemma.toString() + "> <" + e.getFinGrainPoS() + ">");
+            
+            LexiconUtils.createMultiWord(lang, forma.toString(), lemma.toString(), e.getFinGrainPoS(), e.getCoarseGrainPoS(),
                     e.getFirstTraitGroup(), e.getSecondTraitGroup(), e.getThirdTraitGroup(), manager);
+        /*    LexiconUtils.createMultiWord(lang, reverse(e.getForm()), reverse(e.getLemma()), e.getFinGrainPoS(), e.getCoarseGrainPoS(),
+                    e.getFirstTraitGroup(), e.getSecondTraitGroup(), e.getThirdTraitGroup(), manager);*/
         } else {
             // crete entry
             CoNLLRow e = entry.get(0);
-            LexiconUtils.createWord(lang, e.getForm(), e.getLemma(), e.getFinGrainPoS(), e.getCoarseGrainPoS(), 
+            LexiconUtils.createWord(lang, e.getForm(), e.getLemma(), e.getFinGrainPoS(), e.getCoarseGrainPoS(),
                     e.getFirstTraitGroup(), e.getSecondTraitGroup(), e.getThirdTraitGroup(), manager);
         }
     }
-    
+
     private String reverse(String s) {
         String ret = "";
         String[] a = s.split(" ");
@@ -105,35 +130,34 @@ public class CoNLLImporter implements Importer {
         }
         return ret.trim();
     }
-    
-    
+
     public static class CoNLLRow {
-    
-         @CsvBindByPosition(position = 0)
+
+        @CsvBindByPosition(position = 0)
         private int row;
-         
-         @CsvBindByPosition(position = 1)
+
+        @CsvBindByPosition(position = 1)
         private String form;
 
-         @CsvBindByPosition(position = 2)
+        @CsvBindByPosition(position = 2)
         private String lemma;
 
-         @CsvBindByPosition(position = 3)
+        @CsvBindByPosition(position = 3)
         private String finGrainPoS;
 
-         @CsvBindByPosition(position = 4)
+        @CsvBindByPosition(position = 4)
         private String coarseGrainPoS;
 
-         @CsvBindByPosition(position = 5)
+        @CsvBindByPosition(position = 5)
         private String firstTraitGroup;
 
-         @CsvBindByPosition(position = 6)
+        @CsvBindByPosition(position = 6)
         private String secondTraitGroup;
 
-         @CsvBindByPosition(position = 7)
+        @CsvBindByPosition(position = 7)
         private String thirdTraitGroup;
 
-         @CsvBindByPosition(position = 8)
+        @CsvBindByPosition(position = 8)
         private String type;
 
         public int getRow() {
@@ -144,8 +168,6 @@ public class CoNLLImporter implements Importer {
             this.row = row;
         }
 
-         
-         
         public String getLemma() {
             return lemma;
         }
@@ -210,6 +232,12 @@ public class CoNLLImporter implements Importer {
             this.type = type;
         }
 
-}
-    
+        @Override
+        public String toString() {
+            return getForm() + " " + getLemma() + " " + getCoarseGrainPoS() + " " + getFinGrainPoS() + " " + getFirstTraitGroup() + " " + getSecondTraitGroup() + " " + getThirdTraitGroup();
+        }
+
+        
+    }
+
 }

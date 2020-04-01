@@ -5,6 +5,7 @@
  */
 package it.cnr.ilc.lc.lexoimporter.lexiconUtil;
 
+import it.cnr.ilc.lc.lexoimporter.CoNLLImporter;
 import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLClass;
 import org.semanticweb.owlapi.model.OWLClassAssertionAxiom;
@@ -14,6 +15,7 @@ import org.semanticweb.owlapi.model.OWLNamedIndividual;
 import org.semanticweb.owlapi.model.OWLObjectProperty;
 import org.semanticweb.owlapi.model.OWLObjectPropertyAssertionAxiom;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
+import org.semanticweb.owlapi.util.DefaultPrefixManager;
 
 /**
  *
@@ -78,12 +80,12 @@ public class LexiconUtils {
             setMorphology(type, le, of, finGrainPoS, coarseGrainPoS, firstTraitGroup, secondTraitGroup, thirdTraitGroup, manager);
     }
     
-    private static void setMorphology(String type, OWLNamedIndividual le, OWLNamedIndividual cf, String fineGrainPoS, String coarseGrainPoS,
+    private static void setMorphology(String type, OWLNamedIndividual le, OWLNamedIndividual cf, String finGrainPoS, String coarseGrainPoS,
             String firstTraitGroup, String secondTraitGroup, String thirdTraitGroup, OWLOntologyManager manager) {
 
         addObjectPropertyAxiom("partOfSpeech", cf, 
-                    (Constant.WORD_TYPE.equals(type) ? getIndividual(CoNLLMapToLexInfo.posMapping.get(fineGrainPoS), Namespace.LEXINFO, manager) : 
-                            getIndividual(CoNLLMapToLexInfo.phraseTypeMapping.get(fineGrainPoS), Namespace.LEXINFO, manager)),
+                    (Constant.WORD_TYPE.equals(type) ? getIndividual(CoNLLMapToLexInfo.posMapping.get(finGrainPoS), Namespace.LEXINFO, manager) : 
+                            getIndividual(CoNLLMapToLexInfo.phraseTypeMapping.get(finGrainPoS), Namespace.LEXINFO, manager)),
                     Namespace.LEXINFO, manager);
         if (firstTraitGroup.contains("Gender")) {
             addObjectPropertyAxiom("gender", cf, 
@@ -98,11 +100,11 @@ public class LexiconUtils {
         addDataPropertyAxiom("valid", le, "false", Namespace.DCT, manager);
     }
     
-    public static void createMultiWord(String lang, String form, String lemma, String fineGrainPoS, String coarseGrainPoS,
+    public static void createMultiWord(String lang, String form, String lemma, String finGrainPoS, String coarseGrainPoS,
             String firstTraitGroup, String secondTraitGroup, String thirdTraitGroup, OWLOntologyManager manager) {
         
         // euristic: only the form, contained in the form column, is created as lemma.
-        createLemma(Constant.MULTIWORD_TYPE, lang, form, lemma, fineGrainPoS, coarseGrainPoS, firstTraitGroup, secondTraitGroup, thirdTraitGroup, manager);
+        createLemma(Constant.MULTIWORD_TYPE, lang, form, lemma, finGrainPoS, coarseGrainPoS, firstTraitGroup, secondTraitGroup, thirdTraitGroup, manager);
         createDecomposition(lang, lemma, manager);
     }   
 
