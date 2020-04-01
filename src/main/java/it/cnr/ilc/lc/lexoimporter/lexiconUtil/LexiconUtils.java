@@ -104,6 +104,7 @@ public class LexiconUtils {
         // euristic: only the form, contained in the form column, is created as lemma.
         createLemma(Constant.MULTIWORD_TYPE, lang, form, lemma, finGrainPoS, coarseGrainPoS, firstTraitGroup, secondTraitGroup, thirdTraitGroup, manager);
         createDecomposition(lang, lemma, manager);
+        createForm(Constant.MULTIWORD_TYPE, lang, form, lemma, finGrainPoS, coarseGrainPoS, firstTraitGroup, secondTraitGroup, thirdTraitGroup, manager);
     }
 
     private static void createDecomposition(String lang, String lemma, OWLOntologyManager manager) {
