@@ -29,7 +29,7 @@ public class CoNLLMapToLexInfo {
     
     public final static Map<String, String> morphoTraitMapping = new HashMap<String, String>();
     static {
-        morphoTraitMapping.put("Fem", "femine");
+        morphoTraitMapping.put("Fem", "feminine");
         morphoTraitMapping.put("Masc", "masculine");
         morphoTraitMapping.put("Sing", "singular");
         morphoTraitMapping.put("Plur", "plural");
