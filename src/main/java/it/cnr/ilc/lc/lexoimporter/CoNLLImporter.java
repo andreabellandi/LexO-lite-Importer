@@ -15,7 +15,6 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Stack;
 import java.util.logging.Level;
@@ -76,20 +75,16 @@ public class CoNLLImporter implements Importer {
             CoNLLRow e = new CoNLLRow();
             Stack<String> formS = new Stack<>();
             Stack<String> lemmaS = new Stack<>();
-           // e.setForm("");
-           // e.setLemma("");
+            // e.setForm("");
+            // e.setLemma("");
             for (CoNLLRow comp : entry) {
-                System.err.println("comp: " + comp.toString());
-                    for (String el : comp.getFirstTraitGroup().split("\\|")) {
-
-                    }
                 LexiconUtils.createWord(lang, comp.getForm(), comp.getLemma(), comp.getFinGrainPoS(), comp.getCoarseGrainPoS(),
                         comp.getFirstTraitGroup(), comp.getSecondTraitGroup(), comp.getThirdTraitGroup(), manager);
                 //e.setForm(e.getForm() + comp.getForm() + " ");
                 //e.setLemma(e.getLemma() + comp.getLemma() + " ");
                 formS.push(comp.getForm());
                 lemmaS.push(comp.getLemma());
-                if (e.getType().equals("B")) {
+                if (comp.getType().equals("B")) {
                     e.setFinGrainPoS(comp.getFinGrainPoS());
                     e.setCoarseGrainPoS(comp.getCoarseGrainPoS());
                     e.setFirstTraitGroup(comp.getFirstTraitGroup());
@@ -100,19 +95,19 @@ public class CoNLLImporter implements Importer {
 
             StringBuilder forma = new StringBuilder();
             while (!formS.empty()) {
-                forma.append(formS.pop()).append((formS.size()>0)?" ":"");
+                forma.append(formS.pop()).append((formS.size() > 0) ? " " : "");
             }
 
             StringBuilder lemma = new StringBuilder();
             while (!lemmaS.empty()) {
-                lemma.append(lemmaS.pop()).append((lemmaS.size()>0)?" ":"");
+                lemma.append(lemmaS.pop()).append((lemmaS.size() > 0) ? " " : "");
             }
-            
-            System.err.println("<" + forma.toString() + "> <" + lemma.toString() + "> <" + e.getFinGrainPoS() + ">");
-            
+
+            //System.err.println("<" + forma.toString() + "> <" + lemma.toString() + "> <" + e.getFinGrainPoS() + ">");
+
             LexiconUtils.createMultiWord(lang, forma.toString(), lemma.toString(), e.getFinGrainPoS(), e.getCoarseGrainPoS(),
                     e.getFirstTraitGroup(), e.getSecondTraitGroup(), e.getThirdTraitGroup(), manager);
-        /*    LexiconUtils.createMultiWord(lang, reverse(e.getForm()), reverse(e.getLemma()), e.getFinGrainPoS(), e.getCoarseGrainPoS(),
+            /*    LexiconUtils.createMultiWord(lang, reverse(e.getForm()), reverse(e.getLemma()), e.getFinGrainPoS(), e.getCoarseGrainPoS(),
                     e.getFirstTraitGroup(), e.getSecondTraitGroup(), e.getThirdTraitGroup(), manager);*/
         } else {
             // crete entry
@@ -234,10 +229,9 @@ public class CoNLLImporter implements Importer {
 
         @Override
         public String toString() {
-            return getForm() + " " + getLemma() + " " + getCoarseGrainPoS() + " " + getFinGrainPoS() + " " + getFirstTraitGroup() + " " + getSecondTraitGroup() + " " + getThirdTraitGroup();
+            return getRow() + " " + getForm() + " " + getLemma() + " " + getCoarseGrainPoS() + " " + getFinGrainPoS() + " " + getFirstTraitGroup() + " " + getSecondTraitGroup() + " " + getThirdTraitGroup() + " " + getType();
         }
 
-        
     }
 
 }
