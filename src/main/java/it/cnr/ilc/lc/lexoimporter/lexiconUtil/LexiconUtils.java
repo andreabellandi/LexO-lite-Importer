@@ -106,6 +106,9 @@ public class LexiconUtils {
         // euristic: only the form, contained in the form column, is created as lemma.
         createLemma(Constant.MULTIWORD_TYPE, lang, form, lemma, finGrainPoS, coarseGrainPoS, firstTraitGroup, secondTraitGroup, thirdTraitGroup, manager);
         createDecomposition(lang, lemma, manager);
+        if (!lemma.equals(form)) {
+            createForm(Constant.MULTIWORD_TYPE, lang, form, lemma, finGrainPoS, coarseGrainPoS, firstTraitGroup, secondTraitGroup, thirdTraitGroup, manager);
+        }
     }   
 
     private static void createDecomposition(String lang, String lemma, OWLOntologyManager manager) {
@@ -128,12 +131,16 @@ public class LexiconUtils {
     public static String getIRI(String... params) {
         StringBuilder iri = new StringBuilder();
         for (int i = 0; i < params.length; i++) {
-            iri.append(params[i]);
+            iri.append(sanitize(params[i]));
             if (i < (params.length - 1)) {
                 iri.append("_");
             }
         }
         return iri.toString();
+    }
+    
+    private static String sanitize(String s) {
+        return s.replaceAll("'", "_APOS_");
     }
     
     private static OWLNamedIndividual getEntry(String uri, String clazz, OWLOntologyManager manager) {
