@@ -8,6 +8,7 @@ package it.cnr.ilc.lc.lexoimporter;
 import com.opencsv.bean.CsvBindByPosition;
 import com.opencsv.bean.CsvToBean;
 import com.opencsv.bean.CsvToBeanBuilder;
+import it.cnr.ilc.lc.lexoimporter.lexiconUtil.Constant;
 import it.cnr.ilc.lc.lexoimporter.lexiconUtil.LexiconUtils;
 import it.cnr.ilc.lc.lexoimporter.lexiconUtil.Namespace;
 import java.io.InputStream;
@@ -78,8 +79,13 @@ public class CoNLLImporter implements Importer {
             // e.setForm("");
             // e.setLemma("");
             for (CoNLLRow comp : entry) {
-                LexiconUtils.createWord(lang, comp.getForm(), comp.getLemma(), comp.getFinGrainPoS(), comp.getCoarseGrainPoS(),
-                        comp.getFirstTraitGroup(), comp.getSecondTraitGroup(), comp.getThirdTraitGroup(), manager);
+                if (!Constant.STOP_POS.contains(comp.getFinGrainPoS())) {
+                    if (comp.getForm().contains("acino")) {
+                        int i = 0;
+                    }
+                    LexiconUtils.createWord(lang, comp.getForm(), comp.getLemma(), comp.getFinGrainPoS(), comp.getCoarseGrainPoS(),
+                            comp.getFirstTraitGroup(), comp.getSecondTraitGroup(), comp.getThirdTraitGroup(), manager);
+                }
                 //e.setForm(e.getForm() + comp.getForm() + " ");
                 //e.setLemma(e.getLemma() + comp.getLemma() + " ");
                 formS.push(comp.getForm());
@@ -104,7 +110,6 @@ public class CoNLLImporter implements Importer {
             }
 
             //System.err.println("<" + forma.toString() + "> <" + lemma.toString() + "> <" + e.getFinGrainPoS() + ">");
-
             LexiconUtils.createMultiWord(lang, forma.toString(), lemma.toString(), e.getFinGrainPoS(), e.getCoarseGrainPoS(),
                     e.getFirstTraitGroup(), e.getSecondTraitGroup(), e.getThirdTraitGroup(), manager);
             /*    LexiconUtils.createMultiWord(lang, reverse(e.getForm()), reverse(e.getLemma()), e.getFinGrainPoS(), e.getCoarseGrainPoS(),

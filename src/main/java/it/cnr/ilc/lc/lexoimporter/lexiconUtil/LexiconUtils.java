@@ -103,7 +103,6 @@ public class LexiconUtils {
     public static void createMultiWord(String lang, String form, String lemma, String finGrainPoS, String coarseGrainPoS,
             String firstTraitGroup, String secondTraitGroup, String thirdTraitGroup, OWLOntologyManager manager) {
         
-        // euristic: only the form, contained in the form column, is created as lemma.
         createLemma(Constant.MULTIWORD_TYPE, lang, form, lemma, finGrainPoS, coarseGrainPoS, firstTraitGroup, secondTraitGroup, thirdTraitGroup, manager);
         createDecomposition(lang, lemma, manager);
         if (!lemma.equals(form)) {
