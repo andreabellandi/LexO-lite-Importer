@@ -140,7 +140,7 @@ public class LexiconUtils {
     }
     
     private static String sanitize(String s) {
-        return s.replaceAll("'", "_APOS_");
+        return s.replaceAll("'|‘", "_APOS_");
     }
     
     private static OWLNamedIndividual getEntry(String uri, String clazz, OWLOntologyManager manager) {
