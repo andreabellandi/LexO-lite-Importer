@@ -80,9 +80,6 @@ public class CoNLLImporter implements Importer {
             // e.setLemma("");
             for (CoNLLRow comp : entry) {
                 if (!Constant.STOP_POS.contains(comp.getFinGrainPoS())) {
-                    if (comp.getForm().contains("acino")) {
-                        int i = 0;
-                    }
                     LexiconUtils.createWord(lang, comp.getForm(), comp.getLemma(), comp.getFinGrainPoS(), comp.getCoarseGrainPoS(),
                             comp.getFirstTraitGroup(), comp.getSecondTraitGroup(), comp.getThirdTraitGroup(), manager);
                 }
