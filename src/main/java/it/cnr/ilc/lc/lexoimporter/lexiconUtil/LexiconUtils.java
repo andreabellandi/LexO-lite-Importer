@@ -51,10 +51,10 @@ public class LexiconUtils {
 
     public static void createLemma(String type, String lang, String form, String lemma, String finGrainPoS, String coarseGrainPoS,
             String firstTraitGroup, String secondTraitGroup, String thirdTraitGroup, OWLOntologyManager manager) {
-
-        String lemmaInstance = getIRI(type.equals(Constant.MULTIWORD_TYPE) ? lemma.replaceAll(" ", "_") : lemma, finGrainPoS.toLowerCase(), lang, "lemma");
-        String senseInstance = getIRI(type.equals(Constant.MULTIWORD_TYPE) ? lemma.replaceAll(" ", "_") : lemma, finGrainPoS.toLowerCase(), lang, "sense1");
-        String entryInstance = getIRI(type.equals(Constant.MULTIWORD_TYPE) ? lemma.replaceAll(" ", "_") : lemma, finGrainPoS.toLowerCase(), lang, "entry");
+        
+        String lemmaInstance = getIRI(type.equals(Constant.MULTIWORD_TYPE) ? lemma.replaceAll(" ", "_") : lemma, CoNLLMapToLexInfo.posMapping.get(finGrainPoS), lang, "lemma");
+        String senseInstance = getIRI(type.equals(Constant.MULTIWORD_TYPE) ? lemma.replaceAll(" ", "_") : lemma, CoNLLMapToLexInfo.posMapping.get(finGrainPoS), lang, "sense1");
+        String entryInstance = getIRI(type.equals(Constant.MULTIWORD_TYPE) ? lemma.replaceAll(" ", "_") : lemma, CoNLLMapToLexInfo.posMapping.get(finGrainPoS), lang, "entry");
 
         OWLNamedIndividual lexicon = getIndividual(Constant.LEXICON_INDIVIDUAL_NAME, Namespace.LEXICON, manager);
         OWLNamedIndividual le = getEntry(entryInstance, type, manager);
@@ -72,9 +72,9 @@ public class LexiconUtils {
     public static void createForm(String type, String lang, String form, String lemma, String finGrainPoS, String coarseGrainPoS,
             String firstTraitGroup, String secondTraitGroup, String thirdTraitGroup, OWLOntologyManager manager) {
 
-        String formInstance = getIRI(type.equals(Constant.MULTIWORD_TYPE) ? lemma.replaceAll(" ", "_") : lemma, finGrainPoS.toLowerCase(),
+        String formInstance = getIRI(type.equals(Constant.MULTIWORD_TYPE) ? lemma.replaceAll(" ", "_") : lemma, CoNLLMapToLexInfo.posMapping.get(finGrainPoS),
                 lang, type.equals(Constant.MULTIWORD_TYPE) ? form.replaceAll(" ", "_") : form, "form");
-        String entryInstance = getIRI(type.equals(Constant.MULTIWORD_TYPE) ? lemma.replaceAll(" ", "_") : lemma, finGrainPoS.toLowerCase(), lang, "entry");
+        String entryInstance = getIRI(type.equals(Constant.MULTIWORD_TYPE) ? lemma.replaceAll(" ", "_") : lemma, CoNLLMapToLexInfo.posMapping.get(finGrainPoS), lang, "entry");
         OWLNamedIndividual le = getIndividual(entryInstance, Namespace.LEXICON, manager);
         OWLNamedIndividual of = getForm(formInstance, manager);
 
@@ -117,7 +117,7 @@ public class LexiconUtils {
     private static void createDecomposition(String lang, String lemma, String finGrainPoS, OWLOntologyManager manager) {
 
         String[] mwComponents = lemma.split(" ");
-        String entryInstance = getIRI(lemma.replaceAll(" ", "_"), finGrainPoS.toLowerCase(), lang, "entry");
+        String entryInstance = getIRI(lemma.replaceAll(" ", "_"), CoNLLMapToLexInfo.posMapping.get(finGrainPoS), lang, "entry");
         OWLNamedIndividual le = getIndividual(entryInstance, Namespace.LEXICON, manager);
 
         for (int i = 0; i < mwComponents.length; i++) {

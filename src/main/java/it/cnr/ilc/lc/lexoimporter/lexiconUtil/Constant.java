@@ -21,7 +21,7 @@ public class Constant {
     public static final String RESOURCE_CREATOR = "Impoterd by LexO-lite importer";
     public static final String RESOURCE_DESCRIPTION = "https://github.com/andreabellandi/LexO-lite-Importer";
     public static final String LINGUISTIC_CATALOG = "http://www.lexinfo.net/ontologies/3.0/lexinfo";
-    public static final String SOURCE_FILE_PATH = System.getProperty("user.home")+"/Documents/RABBINI/conll4lexo.txt";
+    public static final String SOURCE_FILE_PATH = System.getProperty("user.home")+"/Documents/Talmud_CoNLL/conll.txt";
     public static final String TARGET_FILE_PATH = System.getProperty("user.home") + "/.LexO-lite/mylexicon.owl";
 
 }

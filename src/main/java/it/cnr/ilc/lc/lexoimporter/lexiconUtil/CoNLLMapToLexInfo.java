@@ -17,6 +17,7 @@ public class CoNLLMapToLexInfo {
     public final static Map<String, String> posMapping = new HashMap<String, String>();
     static {
         posMapping.put("NOUN", "noun");
+        posMapping.put("PROPN", "noun");
         posMapping.put("ADJ", "adjective");
         posMapping.put("ADP", "preposition");
     }
@@ -24,6 +25,7 @@ public class CoNLLMapToLexInfo {
     public final static Map<String, String> phraseTypeMapping = new HashMap<String, String>();
     static {
         phraseTypeMapping.put("NOUN", "noun");
+        phraseTypeMapping.put("PROPN", "noun");
         phraseTypeMapping.put("ADJ", "adjective");
     }
     
