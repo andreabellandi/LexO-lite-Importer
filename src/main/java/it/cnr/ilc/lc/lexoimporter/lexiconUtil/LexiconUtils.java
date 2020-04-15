@@ -87,7 +87,7 @@ public class LexiconUtils {
     private static void setMorphology(String type, OWLNamedIndividual le, OWLNamedIndividual cf, String finGrainPoS, String coarseGrainPoS,
             String firstTraitGroup, String secondTraitGroup, String thirdTraitGroup, OWLOntologyManager manager) {
 
-        addObjectPropertyAxiom("partOfSpeech", cf,
+        addObjectPropertyAxiom("partOfSpeech", le,
                 (Constant.WORD_TYPE.equals(type) ? getIndividual(CoNLLMapToLexInfo.posMapping.get(finGrainPoS), Namespace.LEXINFO, manager)
                 : getIndividual(CoNLLMapToLexInfo.phraseTypeMapping.get(finGrainPoS), Namespace.LEXINFO, manager)),
                 Namespace.LEXINFO, manager);
