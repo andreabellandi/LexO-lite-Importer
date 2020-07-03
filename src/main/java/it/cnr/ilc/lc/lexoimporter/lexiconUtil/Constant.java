@@ -18,10 +18,13 @@ public class Constant {
     public static final String WORD_TYPE = OntoLexEntity.Class.WORD.getLabel();
     public static final String MULTIWORD_TYPE = OntoLexEntity.Class.MULTIWORD.getLabel();
     public static final List<String> STOP_POS = Arrays.asList("ADP");
-    public static final String RESOURCE_CREATOR = "Impoterd by LexO-lite importer";
-    public static final String RESOURCE_DESCRIPTION = "https://github.com/andreabellandi/LexO-lite-Importer";
+    public static final String RESOURCE_CREATOR = "Impoterd by LexO-lite";
+    public static final String RESOURCE_DESCRIPTION = "https://github.com/andreabellandi/LexO-lite";
     public static final String LINGUISTIC_CATALOG = "http://www.lexinfo.net/ontologies/3.0/lexinfo";
-    public static final String SOURCE_FILE_PATH = System.getProperty("user.home")+"/Documents/Talmud_CoNLL/conll.txt";
-    public static final String TARGET_FILE_PATH = System.getProperty("user.home") + "/.LexO-lite/mylexicon.owl";
+    public static final String SOURCE_FILE_PATH = System.getProperty("user.home")+"/Documents/Talmud/ORIGINAL_conll.txt";
+    public static final String TARGET_FILE_PATH = System.getProperty("user.home") + "/.LexO-lite/conll.owl";
+    
+    public static final String TRANSLITERATION = "hebrewTransliteration";
+    public static final String TALMUD_TRANSLATION = "talmudTranslationNote";
 
 }

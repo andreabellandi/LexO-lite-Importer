@@ -81,7 +81,7 @@ public class CoNLLImporter implements Importer {
             for (CoNLLRow comp : entry) {
                 if (!Constant.STOP_POS.contains(comp.getFinGrainPoS())) {
                     LexiconUtils.createWord(lang, comp.getForm(), comp.getLemma(), comp.getFinGrainPoS(), comp.getCoarseGrainPoS(),
-                            comp.getFirstTraitGroup(), comp.getSecondTraitGroup(), comp.getThirdTraitGroup(), manager);
+                            comp.getFirstTraitGroup(), comp.getSecondTraitGroup(), comp.getThirdTraitGroup(), manager, true);
                 }
                 //e.setForm(e.getForm() + comp.getForm() + " ");
                 //e.setLemma(e.getLemma() + comp.getLemma() + " ");
@@ -108,14 +108,14 @@ public class CoNLLImporter implements Importer {
 
             //System.err.println("<" + forma.toString() + "> <" + lemma.toString() + "> <" + e.getFinGrainPoS() + ">");
             LexiconUtils.createMultiWord(lang, forma.toString(), lemma.toString(), e.getFinGrainPoS(), e.getCoarseGrainPoS(),
-                    e.getFirstTraitGroup(), e.getSecondTraitGroup(), e.getThirdTraitGroup(), manager);
+                    e.getFirstTraitGroup(), e.getSecondTraitGroup(), e.getThirdTraitGroup(), manager, false);
             /*    LexiconUtils.createMultiWord(lang, reverse(e.getForm()), reverse(e.getLemma()), e.getFinGrainPoS(), e.getCoarseGrainPoS(),
                     e.getFirstTraitGroup(), e.getSecondTraitGroup(), e.getThirdTraitGroup(), manager);*/
         } else {
             // crete entry
             CoNLLRow e = entry.get(0);
             LexiconUtils.createWord(lang, e.getForm(), e.getLemma(), e.getFinGrainPoS(), e.getCoarseGrainPoS(),
-                    e.getFirstTraitGroup(), e.getSecondTraitGroup(), e.getThirdTraitGroup(), manager);
+                    e.getFirstTraitGroup(), e.getSecondTraitGroup(), e.getThirdTraitGroup(), manager, false);
         }
     }
 

@@ -30,7 +30,7 @@ import org.semanticweb.owlapi.util.DefaultPrefixManager;
 public class LexiconUtils {
 
     public static void createLexicon(String lang, OWLOntologyManager manager) {
-        OWLNamedIndividual lexicon = getIndividual(Constant.LEXICON_INDIVIDUAL_NAME, Namespace.LEXICON, manager);
+        OWLNamedIndividual lexicon = getIndividual(Constant.LEXICON_INDIVIDUAL_NAME + "_" + lang, Namespace.LEXICON, manager);
         OWLClass lexiconClass = manager.getOWLDataFactory().getOWLClass(Namespace.LIME, "Lexicon");
         addIndividualAxiom(lexiconClass, lexicon, manager);
         addDataPropertyAxiom("language", lexicon, lang, Namespace.LIME, manager);
@@ -40,23 +40,31 @@ public class LexiconUtils {
         addDataPropertyAxiom("creator", lexicon, Constant.RESOURCE_CREATOR, Namespace.DCT, manager);
     }
 
+    // for CoNLL
     public static void createWord(String lang, String form, String lemma, String finGrainPoS, String coarseGrainPoS,
-            String firstTraitGroup, String secondTraitGroup, String thirdTraitGroup, OWLOntologyManager manager) {
+            String firstTraitGroup, String secondTraitGroup, String thirdTraitGroup, OWLOntologyManager manager, boolean isComponent) {
 
-        createLemma(Constant.WORD_TYPE, lang, form, lemma, finGrainPoS, coarseGrainPoS, firstTraitGroup, secondTraitGroup, thirdTraitGroup, manager);
+        createLemma(Constant.WORD_TYPE, lang, form, lemma, finGrainPoS, coarseGrainPoS, firstTraitGroup, secondTraitGroup, thirdTraitGroup, manager, isComponent);
         if (!form.equals(lemma)) {
             createForm(Constant.WORD_TYPE, lang, form, lemma, finGrainPoS, coarseGrainPoS, firstTraitGroup, secondTraitGroup, thirdTraitGroup, manager);
         }
     }
 
+    // for Glossary
+    public static OWLNamedIndividual createWord(String lang, String lemma, String form, String finGrainPoS, String type,
+            String translation, String transliteration, String hebrew, String gloss, OWLOntologyManager manager, boolean isComponent) {
+        return createLemma(Constant.WORD_TYPE, lang, lemma, finGrainPoS, translation, transliteration, hebrew, gloss, manager, isComponent);
+    }
+
+    // for CoNLL
     public static void createLemma(String type, String lang, String form, String lemma, String finGrainPoS, String coarseGrainPoS,
-            String firstTraitGroup, String secondTraitGroup, String thirdTraitGroup, OWLOntologyManager manager) {
-        
+            String firstTraitGroup, String secondTraitGroup, String thirdTraitGroup, OWLOntologyManager manager, boolean isComponent) {
+
         String lemmaInstance = getIRI(type.equals(Constant.MULTIWORD_TYPE) ? lemma.replaceAll(" ", "_") : lemma, CoNLLMapToLexInfo.posMapping.get(finGrainPoS), lang, "lemma");
         String senseInstance = getIRI(type.equals(Constant.MULTIWORD_TYPE) ? lemma.replaceAll(" ", "_") : lemma, CoNLLMapToLexInfo.posMapping.get(finGrainPoS), lang, "sense1");
         String entryInstance = getIRI(type.equals(Constant.MULTIWORD_TYPE) ? lemma.replaceAll(" ", "_") : lemma, CoNLLMapToLexInfo.posMapping.get(finGrainPoS), lang, "entry");
 
-        OWLNamedIndividual lexicon = getIndividual(Constant.LEXICON_INDIVIDUAL_NAME, Namespace.LEXICON, manager);
+        OWLNamedIndividual lexicon = getIndividual(Constant.LEXICON_INDIVIDUAL_NAME + "_" + lang, Namespace.LEXICON, manager);
         OWLNamedIndividual le = getEntry(entryInstance, type, manager);
         OWLNamedIndividual cf = getForm(lemmaInstance, manager);
         OWLNamedIndividual s = getSense(senseInstance, manager);
@@ -67,6 +75,44 @@ public class LexiconUtils {
         addDataPropertyAxiom(OntoLexEntity.DataProperty.WRITTENREP.getLabel(), cf, lemma, Namespace.ONTOLEX, manager);
 
         setMorphology(type, le, cf, finGrainPoS, coarseGrainPoS, firstTraitGroup, secondTraitGroup, thirdTraitGroup, manager);
+    }
+
+    // for Glossay
+    public static OWLNamedIndividual createLemma(String type, String lang, String lemma, String finGrainPoS, String translation,
+            String transliteration, String hebrew, String gloss, OWLOntologyManager manager, boolean isComponent) {
+
+        String lemmaInstance = getIRI(type.equals(Constant.MULTIWORD_TYPE) ? lemma.replaceAll(" ", "_").
+                replaceAll("\\(", "").replaceAll("\\)", "").replaceAll("–", "") : lemma, CoNLLMapToLexInfo.posMapping.get(finGrainPoS), lang, "lemma");
+        String senseInstance = getIRI(type.equals(Constant.MULTIWORD_TYPE) ? lemma.replaceAll(" ", "_").
+                replaceAll("\\(", "").replaceAll("\\)", "").replaceAll("–", "") : lemma, CoNLLMapToLexInfo.posMapping.get(finGrainPoS), lang, "sense1");
+        String entryInstance = getIRI(type.equals(Constant.MULTIWORD_TYPE) ? lemma.replaceAll(" ", "_").
+                replaceAll("\\(", "").replaceAll("\\)", "").replaceAll("–", "") : lemma, CoNLLMapToLexInfo.posMapping.get(finGrainPoS), lang, "entry");
+
+        OWLNamedIndividual lexicon = getIndividual(Constant.LEXICON_INDIVIDUAL_NAME + "_" + lang, Namespace.LEXICON, manager);
+        OWLNamedIndividual le = getEntry(entryInstance, type, manager);
+        OWLNamedIndividual cf = getForm(lemmaInstance, manager);
+        OWLNamedIndividual s = getSense(senseInstance, manager);
+
+        addObjectPropertyAxiom(OntoLexEntity.ObjectProperty.ENTRY.getLabel(), lexicon, le, Namespace.LIME, manager);
+        addObjectPropertyAxiom(OntoLexEntity.ObjectProperty.CANONICALFORM.getLabel(), le, cf, Namespace.ONTOLEX, manager);
+        addObjectPropertyAxiom(OntoLexEntity.ObjectProperty.SENSE.getLabel(), le, s, Namespace.ONTOLEX, manager);
+        addDataPropertyAxiom(OntoLexEntity.DataProperty.WRITTENREP.getLabel(), cf, lemma, Namespace.ONTOLEX, manager);
+
+        if (!isComponent) {
+            addDataPropertyAxiom("definition", s, gloss, Namespace.SKOS, manager);
+
+            if (translation != null) {
+                addDataPropertyAxiom(Constant.TALMUD_TRANSLATION, cf, translation, Namespace.EXTENSION, manager);
+            }
+        }
+
+        addObjectPropertyAxiom("partOfSpeech", le,
+                (Constant.WORD_TYPE.equals(type) ? getIndividual(CoNLLMapToLexInfo.posMapping.get(finGrainPoS), Namespace.LEXINFO, manager)
+                : getIndividual(CoNLLMapToLexInfo.phraseTypeMapping.get(finGrainPoS), Namespace.LEXINFO, manager)),
+                Namespace.LEXINFO, manager);
+        addDataPropertyAxiom("valid", le, "true", Namespace.DCT, manager);
+
+        return s;
     }
 
     public static void createForm(String type, String lang, String form, String lemma, String finGrainPoS, String coarseGrainPoS,
@@ -104,14 +150,24 @@ public class LexiconUtils {
         addDataPropertyAxiom("valid", le, "false", Namespace.DCT, manager);
     }
 
+    // for CoNLL
     public static void createMultiWord(String lang, String form, String lemma, String finGrainPoS, String coarseGrainPoS,
-            String firstTraitGroup, String secondTraitGroup, String thirdTraitGroup, OWLOntologyManager manager) {
+            String firstTraitGroup, String secondTraitGroup, String thirdTraitGroup, OWLOntologyManager manager, boolean isComponent) {
 
-        createLemma(Constant.MULTIWORD_TYPE, lang, form, lemma, finGrainPoS, coarseGrainPoS, firstTraitGroup, secondTraitGroup, thirdTraitGroup, manager);
+        createLemma(Constant.MULTIWORD_TYPE, lang, form, lemma, finGrainPoS, coarseGrainPoS, firstTraitGroup, secondTraitGroup, thirdTraitGroup, manager, isComponent);
         createDecomposition(lang, lemma, finGrainPoS, manager);
         if (!lemma.equals(form)) {
             createForm(Constant.MULTIWORD_TYPE, lang, form, lemma, finGrainPoS, coarseGrainPoS, firstTraitGroup, secondTraitGroup, thirdTraitGroup, manager);
         }
+    }
+
+    // for Glossary
+    public static OWLNamedIndividual createMultiWord(String lang, String lemma, String finGrainPoS, String translation,
+            String transliteration, String hebrew, String gloss, OWLOntologyManager manager, boolean isComponent) {
+
+        OWLNamedIndividual sense = createLemma(Constant.MULTIWORD_TYPE, lang, lemma, finGrainPoS, translation, transliteration, hebrew, gloss, manager, isComponent);
+        createDecomposition(lang, lemma, finGrainPoS, manager);
+        return sense;
     }
 
     private static void createDecomposition(String lang, String lemma, String finGrainPoS, OWLOntologyManager manager) {
@@ -207,12 +263,61 @@ public class LexiconUtils {
     }
 
     private static void addDataPropertyAxiom(String dataProp, OWLNamedIndividual src, String trg, String ns, OWLOntologyManager manager) {
-        if (!trg.isEmpty()) {
-            OWLDataProperty p = manager.getOWLDataFactory().getOWLDataProperty(ns, dataProp);
-            OWLDataPropertyAssertionAxiom dataPropertyAssertion = manager.getOWLDataFactory().getOWLDataPropertyAssertionAxiom(p, src, trg);
-            manager.addAxiom(manager.getOntology(IRI.create(Namespace.LEXICON.replace("#", ""))), dataPropertyAssertion);
+        if (trg != null) {
+            if (!trg.isEmpty()) {
+                OWLDataProperty p = manager.getOWLDataFactory().getOWLDataProperty(ns, dataProp);
+                OWLDataPropertyAssertionAxiom dataPropertyAssertion = manager.getOWLDataFactory().getOWLDataPropertyAssertionAxiom(p, src, trg);
+                manager.addAxiom(manager.getOntology(IRI.create(Namespace.LEXICON.replace("#", ""))), dataPropertyAssertion);
+            }
         }
     }
+
+    public static void createHebrewWord(String lemma, String pos, String lang, String transliteration, OWLNamedIndividual sense, OWLOntologyManager manager, boolean isComponent) {
+        createHebrewLemma(Constant.WORD_TYPE, lemma, pos, lang, transliteration, sense, manager, isComponent);
+    }
+
+    private static void createHebrewLemma(String type, String lemma, String pos, String lang, String transliteration, OWLNamedIndividual sense, OWLOntologyManager manager, boolean isComponent) {
+        String lemmaInstance = getIRI(type.equals(Constant.MULTIWORD_TYPE) ? lemma.replaceAll(" ", "_").
+                replaceAll("\\(", "").replaceAll("\\)", "").replaceAll("–", "") : lemma, CoNLLMapToLexInfo.posMapping.get(pos), lang, "lemma");
+        String senseInstance = getIRI(type.equals(Constant.MULTIWORD_TYPE) ? lemma.replaceAll(" ", "_").
+                replaceAll("\\(", "").replaceAll("\\)", "").replaceAll("–", "") : lemma, CoNLLMapToLexInfo.posMapping.get(pos), lang, "sense1");
+        String entryInstance = getIRI(type.equals(Constant.MULTIWORD_TYPE) ? lemma.replaceAll(" ", "_").
+                replaceAll("\\(", "").replaceAll("\\)", "").replaceAll("–", "") : lemma, CoNLLMapToLexInfo.posMapping.get(pos), lang, "entry");
+
+        OWLNamedIndividual lexicon = getIndividual(Constant.LEXICON_INDIVIDUAL_NAME + "_" + lang, Namespace.LEXICON, manager);
+        OWLNamedIndividual le = getEntry(entryInstance, type, manager);
+        OWLNamedIndividual cf = getForm(lemmaInstance, manager);
+        OWLNamedIndividual s = getSense(senseInstance, manager);
+
+        addObjectPropertyAxiom(OntoLexEntity.ObjectProperty.ENTRY.getLabel(), lexicon, le, Namespace.LIME, manager);
+        addObjectPropertyAxiom(OntoLexEntity.ObjectProperty.CANONICALFORM.getLabel(), le, cf, Namespace.ONTOLEX, manager);
+        addObjectPropertyAxiom(OntoLexEntity.ObjectProperty.SENSE.getLabel(), le, s, Namespace.ONTOLEX, manager);
+        addDataPropertyAxiom(OntoLexEntity.DataProperty.WRITTENREP.getLabel(), cf, lemma, Namespace.ONTOLEX, manager);
+
+        addObjectPropertyAxiom("partOfSpeech", le,
+                (Constant.WORD_TYPE.equals(type) ? getIndividual(CoNLLMapToLexInfo.posMapping.get(pos), Namespace.LEXINFO, manager)
+                : getIndividual(CoNLLMapToLexInfo.phraseTypeMapping.get(pos), Namespace.LEXINFO, manager)),
+                Namespace.LEXINFO, manager);
+        addDataPropertyAxiom("valid", le, "false", Namespace.DCT, manager);
+
+        if (!isComponent) {
+            if (transliteration != null) {
+                addDataPropertyAxiom(Constant.TRANSLITERATION, cf, transliteration, Namespace.EXTENSION, manager);
+            }
+
+            if (sense != null) {
+                addObjectPropertyAxiom("translation", sense, s, Namespace.LEXINFO, manager);
+                addObjectPropertyAxiom("translation", s, sense, Namespace.LEXINFO, manager);
+            }
+        }
+
+    }
+
+    public static void createHebrewMultiword(String lemma, String pos, String lang, String transliteration, OWLNamedIndividual sense, OWLOntologyManager manager, boolean isComponent) {
+        createHebrewLemma(Constant.MULTIWORD_TYPE, lemma, pos, lang, transliteration, sense, manager, isComponent);
+        createDecomposition(lang, lemma, pos, manager);
+    }
+
     // params: langName, uriLang, lingCat, descritpion, creator
 //    public void addNewLangLexicon(String... params) {
 //        OWLClass lexiconClass = factory.getOWLClass(pm.getPrefixName2PrefixMap().get("lime:"), "Lexicon");
@@ -239,5 +344,4 @@ public class LexiconUtils {
 //        pm.setPrefix("trcat", "http://purl.org/net/translation-categories#");
 //        pm.setPrefix("synsem", "http://www.w3.org/ns/lemon/synsem#");
 //    }
-
 }

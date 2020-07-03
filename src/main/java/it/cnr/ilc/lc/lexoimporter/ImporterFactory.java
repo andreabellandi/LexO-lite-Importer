@@ -17,6 +17,9 @@ public class ImporterFactory {
             case CoNLL:
                 importer = new CoNLLImporter();
                 break;
+            case TALMUD_GLOSSARY:
+                importer = new TalmudGlossaryImporter();
+                break;
         }
         return importer;
     }

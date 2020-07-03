@@ -10,5 +10,5 @@ package it.cnr.ilc.lc.lexoimporter;
  * @author andrea
  */
 public enum LexiconModel {
-    CSV, LEMON, LMF, TEI_DICT, TEI_LEX0, CoNLL
+    CSV, LEMON, LMF, TEI_DICT, TEI_LEX0, CoNLL, TALMUD_GLOSSARY
 }
